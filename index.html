@@ -9,10 +9,11 @@ body{font-family:Arial;background:#e5e7eb;margin:0;padding:0}
 .box{background:white;padding:20px;border-radius:12px;margin-top:20px}
 button{padding:10px 15px;border:none;border-radius:8px;background:#2563eb;color:white;font-weight:bold;cursor:pointer}
 button:hover{background:#1e40af}
-input,textarea{width:100%;padding:8px;margin:5px 0;border-radius:6px;border:1px solid #ccc}
-h2{margin-top:0}
+input,textarea,select{width:100%;padding:8px;margin:5px 0;border-radius:6px;border:1px solid #ccc}
+h2{text-align:center;margin-top:10px}
 .hidden{display:none}
 .logout{background:#dc2626}
+.logo{text-align:center;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -21,9 +22,21 @@ h2{margin-top:0}
 <div class="container">
 
 
+<!-- LOGO ESCOLAR -->
+<div class="box logo">
+<svg width="100" height="100" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 3L2 9L12 15L22 9L12 3Z" fill="#2563eb"/>
+<path d="M5 11V16C5 17.2 8.5 19 12 19C15.5 19 19 17.2 19 16V11" stroke="#1e40af" stroke-width="2" fill="none"/>
+<path d="M7 6H11V18H7C5.9 18 5 17.1 5 16V8C5 6.9 5.9 6 7 6Z" fill="#06b6d4"/>
+<path d="M13 6H17C18.1 6 19 6.9 19 8V16C19 17.1 18.1 18 17 18H13V6Z" fill="#0ea5e9"/>
+</svg>
+<h2>Sistema Escolar</h2>
+</div>
+
+
 <!-- LOGIN -->
 <div id="login" class="box">
-<h2>Ingreso al Sistema Escolar</h2>
+<h2>Ingreso</h2>
 <input id="user" placeholder="Usuario">
 <input id="pass" type="password" placeholder="Contraseña">
 <select id="role">
@@ -79,20 +92,18 @@ mostrarPanel(r);
 
 
 function mostrarPanel(r){
-loginDiv('login',false);
-if(r==='admin')loginDiv('panelAdmin',true);
-if(r==='profesor')loginDiv('panelProfesor',true);
+mostrar('login',false);
+if(r==='admin')mostrar('panelAdmin',true);
+if(r==='profesor')mostrar('panelProfesor',true);
 if(r==='representante'){
 verAdmin.innerText=localStorage.getItem('admin')||'';
 verProfesor.innerText=localStorage.getItem('profesor')||'';
-loginDiv('panelRepresentante',true);
+mostrar('panelRepresentante',true);
 }
 }
 
 
-function loginDiv(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
-
-
+function mostrar(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
 function guardarAdmin(){localStorage.setItem('admin',adminText.value);alert('Guardado')}
 function guardarProfesor(){localStorage.setItem('profesor',profText.value);alert('Guardado')}
 function logout(){localStorage.clear();location.reload()}
