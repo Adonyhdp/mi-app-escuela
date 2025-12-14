@@ -179,7 +179,7 @@
   </div>
 
 </div>
-  <script>
+<script>
 
   /* ✅ USUARIOS DE EJEMPLO (luego se conectarán a Google Sheets) */
   const users = {
@@ -188,7 +188,7 @@
     "padre@gmail.com": {password: "1234", role: "representante"}
   };
 
-  /* ✅ DATOS FICTICIOS (luego serán reemplazados por Google Sheets) */
+  /* ✅ DATOS FICTICIOS (serán reemplazados por Google Sheets en la Parte 3) */
   const escuelas = ["Escuela Primaria Bolívar", "Escuela Simón Rodríguez"];
   const liceos = ["Liceo Libertador", "Liceo San Martín"];
   const salones = Array.from({length: 40}, (_, i) => `Salón ${i+1}`);
@@ -279,14 +279,14 @@
       li.textContent = s;
       li.onclick = () => {
         openTab("estudiantes");
-        loadEstudiantes();
+        loadEstudiantes(); // Esto se reemplaza en la Parte 3
       };
       salonesList.appendChild(li);
     });
   }
 
 
-  /* ✅ CARGAR ESTUDIANTES */
+  /* ✅ CARGAR ESTUDIANTES (FICTICIOS POR AHORA) */
   function loadEstudiantes() {
     const estudiantesList = document.getElementById("estudiantesList");
     estudiantesList.innerHTML = "";
@@ -331,10 +331,7 @@
     `;
   }
 
-</script>
-</body>
-</html>
-  /* ✅ PARTE 3 — CONEXIÓN REAL CON GOOGLE SHEETS */
+    /* ✅ PARTE 3 — CONEXIÓN REAL CON GOOGLE SHEETS */
 
   // ✅ ID de tu hoja (NO LO CAMBIES)
   const sheetID = "1EG53O1aC3NqZIFvYmlewjMQboJ5wOGjP89UUC_Gf1-I";
@@ -342,7 +339,7 @@
   // ✅ URL para leer datos en formato JSON
   const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
-  // ✅ FUNCIÓN PARA LEER LA HOJA COMPLETA
+  // ✅ PROBAR CONEXIÓN
   async function leerGoogleSheet() {
     try {
       const respuesta = await fetch(sheetURL);
@@ -354,11 +351,6 @@
       console.log("✅ Conectado a Google Sheets");
       console.log(json);
 
-      // Aquí luego leeremos:
-      // - Pestaña Usuarios
-      // - Pestaña Estudiantes
-      // - Pestaña Horarios
-
     } catch (error) {
       console.error("❌ Error leyendo Google Sheets:", error);
     }
@@ -367,3 +359,144 @@
   // ✅ LLAMAR A LA FUNCIÓN APENAS ENTRE AL SISTEMA
   leerGoogleSheet();
 
+
+
+  /* ✅ LEER PESTAÑA ESTUDIANTES Y MOSTRARLA EN LA WEB */
+
+  async function cargarEstudiantesReales() {
+    const respuesta = await fetch(sheetURL);
+    const texto = await respuesta.text();
+    const json = JSON.parse(texto.substring(47, texto.length - 2));
+
+    const filas = json.table.rows;
+
+    // Limpiar lista
+    const lista = document.getElementById("estudiantesList");
+    lista.innerHTML = "";
+
+    filas.forEach(fila => {
+      if (!fila.c[0]) return; // Saltar filas vacías
+
+      const nombre = fila.c[0]?.v || "";
+      const apellido = fila.c[1]?.v || "";
+      const edad = fila.c[2]?.v || "";
+      const peso = fila.c[3]?.v || "";
+      const entrada = fila.c[4]?.v || "";
+      const salida = fila.c[5]?.v || "";
+      const matematicas = fila.c[6]?.v || "";
+      const historia = fila.c[7]?.v || "";
+      const ciencias = fila.c[8]?.v || "";
+      const educacionFisica = fila.c[9]?.v || "";
+
+      // Crear item en la lista
+      const li = document.createElement("li");
+      li.textContent = nombre + " " + apellido;
+
+      // Al hacer clic, mostrar datos reales
+      li.onclick = () => {
+        openTab("datos");
+        document.getElementById("datosContent").innerHTML = `
+          <p><b>Nombre:</b> ${nombre} ${apellido}</p>
+          <p><b>Edad:</b> ${edad}</p>
+          <p><b>Peso:</b> ${peso} kg</p>
+          <p><b>Entrada:</b> ${entrada}</p>
+          <p><b>Salida:</b> ${salida}</p>
+
+          <h4>Calificaciones:</h4>
+          <ul>
+            <li>Matemáticas: ${matematicas}</li>
+            <li>Historia: ${historia}</li>
+            <li>Ciencias: ${ciencias}</li>
+            <li>Educación Física: ${educacionFisica}</li>
+          </ul>
+        `;
+      };
+
+      lista.appendChild(li);
+    });
+      }
+    /* ✅ PARTE 4 — LEER ESCUELAS, LICEOS Y HORARIOS REALES DESDE GOOGLE SHEETS */
+
+
+  /* ✅ LEER PESTAÑA ESCUELAS (columna A) */
+  async function cargarEscuelasReales() {
+    const respuesta = await fetch(sheetURL);
+    const texto = await respuesta.text();
+    const json = JSON.parse(texto.substring(47, texto.length - 2));
+
+    const filas = json.table.rows;
+    const lista = document.getElementById("escuelasList");
+    lista.innerHTML = "";
+
+    filas.forEach(fila => {
+      const escuela = fila.c[10]?.v; // Columna 11 (A=0, B=1...)
+      if (!escuela) return;
+
+      const li = document.createElement("li");
+      li.textContent = escuela;
+      li.onclick = () => openTab("salones");
+      lista.appendChild(li);
+    });
+  }
+
+
+
+  /* ✅ LEER PESTAÑA LICEOS (columna B o C según tu hoja) */
+  async function cargarLiceosReales() {
+    const respuesta = await fetch(sheetURL);
+    const texto = await respuesta.text();
+    const json = JSON.parse(texto.substring(47, texto.length - 2));
+
+    const filas = json.table.rows;
+    const lista = document.getElementById("liceosList");
+    lista.innerHTML = "";
+
+    filas.forEach(fila => {
+      const liceo = fila.c[11]?.v; // Columna 12
+      if (!liceo) return;
+
+      const li = document.createElement("li");
+      li.textContent = liceo;
+      li.onclick = () => openTab("salones");
+      lista.appendChild(li);
+    });
+  }
+
+
+
+  /* ✅ LEER PESTAÑA HORARIOS (salón, entrada, salida) */
+  async function cargarHorariosReales() {
+    const respuesta = await fetch(sheetURL);
+    const texto = await respuesta.text();
+    const json = JSON.parse(texto.substring(47, texto.length - 2));
+
+    const filas = json.table.rows;
+    const lista = document.getElementById("salonesList");
+    lista.innerHTML = "";
+
+    filas.forEach(fila => {
+      const salon = fila.c[10]?.v; // Ajusta según tu hoja
+      if (!salon) return;
+
+      const li = document.createElement("li");
+      li.textContent = salon;
+
+      li.onclick = () => {
+        openTab("estudiantes");
+        cargarEstudiantesReales();
+      };
+
+      lista.appendChild(li);
+    });
+  }
+
+
+
+  /* ✅ REEMPLAZAR LISTAS FICTICIAS POR LISTAS REALES */
+  async function loadLists() {
+    await cargarEscuelasReales();
+    await cargarLiceosReales();
+    await cargarHorariosReales();
+  }
+
+  
