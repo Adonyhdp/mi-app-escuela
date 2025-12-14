@@ -2,23 +2,29 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Login Escuela</title>
+  <title>Mi-App-Escuela</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(135deg, #4facfe, #00f2fe);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #283e51;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
     }
     .login-box {
       background: #fff;
+      width: 350px;
+      margin: 80px auto;
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      width: 300px;
       text-align: center;
     }
     .login-box h2 {
@@ -47,11 +53,14 @@
     }
     .tabs {
       display: none;
-      margin-top: 20px;
+      padding: 20px;
+    }
+    .tab-buttons {
+      margin-bottom: 20px;
     }
     .tab-buttons button {
       margin: 5px;
-      padding: 8px 15px;
+      padding: 10px 15px;
       border-radius: 5px;
       border: none;
       cursor: pointer;
@@ -63,57 +72,103 @@
     }
     .tab-content {
       display: none;
-      margin-top: 15px;
-      padding: 15px;
-      background: #f9f9f9;
-      border-radius: 5px;
-      text-align: left;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
     .tab-content.active {
       display: block;
     }
+    .list {
+      list-style: none;
+      padding: 0;
+    }
+    .list li {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+    .list li:hover {
+      background: #f0f8ff;
+    }
   </style>
 </head>
 <body>
+  <header>📘 Mi-App-Escuela</header>
+
+  <!-- LOGIN -->
   <div class="login-box" id="loginBox">
-    <h2>Ingreso Escuela</h2>
+    <h2>Ingreso</h2>
     <input type="text" id="email" placeholder="Correo">
     <input type="password" id="password" placeholder="Contraseña">
     <button onclick="login()">Entrar</button>
   </div>
 
+  <!-- PESTAÑAS -->
   <div class="tabs" id="tabs">
     <div class="tab-buttons">
-      <button onclick="openTab('inicio')" class="active">Inicio</button>
-      <button onclick="openTab('horarios')">Horarios</button>
-      <button onclick="openTab('notas')">Notas</button>
-      <button onclick="openTab('reuniones')">Reuniones</button>
+      <button onclick="openTab('escuelas')" class="active">Escuelas</button>
+      <button onclick="openTab('liceos')">Liceos</button>
     </div>
-    <div id="inicio" class="tab-content active">
-      <h3>Bienvenido</h3>
-      <p>Panel principal según tu rol.</p>
+
+    <!-- Escuelas -->
+    <div id="escuelas" class="tab-content active">
+      <h3>Escuelas</h3>
+      <ul class="list" id="escuelasList"></ul>
     </div>
-    <div id="horarios" class="tab-content">
-      <h3>Horarios</h3>
-      <p>Aquí se mostrarán los horarios de clases.</p>
+
+    <!-- Liceos -->
+    <div id="liceos" class="tab-content">
+      <h3>Liceos</h3>
+      <ul class="list" id="liceosList"></ul>
     </div>
-    <div id="notas" class="tab-content">
-      <h3>Notas</h3>
-      <p>Aquí se mostrarán las calificaciones.</p>
+
+    <!-- Salones -->
+    <div id="salones" class="tab-content">
+      <h3>Salones/Aulas</h3>
+      <ul class="list" id="salonesList"></ul>
     </div>
-    <div id="reuniones" class="tab-content">
-      <h3>Reuniones</h3>
-      <p>Aquí se mostrarán las reuniones programadas.</p>
+
+    <!-- Estudiantes -->
+    <div id="estudiantes" class="tab-content">
+      <h3>Estudiantes</h3>
+      <ul class="list" id="estudiantesList"></ul>
+    </div>
+
+    <!-- Datos -->
+    <div id="datos" class="tab-content">
+      <h3>Datos del Estudiante</h3>
+      <div id="datosContent"></div>
     </div>
   </div>
 
   <script>
-    // Usuarios de ejemplo con roles
+    // Usuarios de ejemplo
     const users = {
       "admin@gmail.com": {password: "1234", role: "admin"},
       "profe@gmail.com": {password: "1234", role: "profesor"},
       "padre@gmail.com": {password: "1234", role: "representante"}
     };
+
+    // Datos ficticios
+    const escuelas = ["Escuela Primaria Bolívar", "Escuela Simón Rodríguez"];
+    const liceos = ["Liceo Libertador", "Liceo San Martín"];
+    const salones = Array.from({length: 40}, (_, i) => `Salón ${i+1}`);
+    const estudiantes = Array.from({length: 40}, (_, i) => ({
+      nombre: `Estudiante ${i+1}`,
+      apellido: `Apellido ${i+1}`,
+      edad: 10 + (i % 10),
+      peso: 30 + i,
+      entrada: "7:00 AM",
+      salida: "1:00 PM",
+      notas: {
+        matematicas: Math.floor(Math.random()*20),
+        historia: Math.floor(Math.random()*20),
+        ciencias: Math.floor(Math.random()*20),
+        educacionFisica: Math.floor(Math.random()*20)
+      }
+    }));
 
     function login() {
       const email = document.getElementById("email").value;
@@ -122,7 +177,7 @@
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("tabs").style.display = "block";
         alert("Bienvenido " + users[email].role);
-        // Aquí luego podemos ocultar/mostrar pestañas según el rol
+        loadLists();
       } else {
         alert("Correo o contraseña incorrectos");
       }
@@ -135,6 +190,83 @@
       buttons.forEach(b => b.classList.remove("active"));
       document.getElementById(tabName).classList.add("active");
       event.target.classList.add("active");
+    }
+
+    function loadLists() {
+      const escuelasList = document.getElementById("escuelasList");
+      escuelas.forEach(e => {
+        const li = document.createElement("li");
+        li.textContent = e;
+        li.onclick = () => openTab("salones");
+        escuelasList.appendChild(li);
+      });
+
+      const liceosList = document.getElementById("liceosList");
+      liceos.forEach(l => {
+        const li = document.createElement("li");
+        li.textContent = l;
+        li.onclick = () => openTab("salones");
+        liceosList.appendChild(li);
+      });
+
+      const salonesList = document.getElementById("salonesList");
+      salones.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = s;
+        li.onclick = () => {
+          openTab("estudiantes");
+          loadEstudiantes();
+        };
+        salonesList.appendChild(li);
+      });
+    }
+
+    function loadEstudiantes() {
+      const estudiantesList = document.getElementById("estudiantesList");
+      estudiantesList.innerHTML = "";
+      estudiantes.forEach(est => {
+        const li = document.createElement("li");
+        li.textContent = est.nombre + " " + est.apellido;
+        li.onclick = () => showDatos(est);
+        estudiantesList.appendChild(li);
+      });
+    }
+
+    function showDatos(est) {
+      openTab("datos");
+      const datosContent = document.getElementById("datosContent");
+      datosContent.innerHTML = `
+        <p><b>Nombre:</b> ${est.nombre} ${est.apellido}</p>
+        <p><b>Edad:</b> ${est.edad}</p>
+        <p><b>Peso:</b> ${est.peso} kg</p>
+        <p><b>Entrada:</b> ${est.entrada}</p>
+        <p><b>Salida:</b> ${est.salida}</p>
+        <h4>Calificaciones:</h4>
+        <ul>
+          <li>Matemáticas: ${est.notas
+                                 function showDatos(est) {
+      openTab("datos");
+      const datosContent = document.getElementById("datosContent");
+      datosContent.innerHTML = `
+        <p><b>Nombre:</b> ${est.nombre} ${est.apellido}</p>
+        <p><b>Edad:</b> ${est.edad}</p>
+        <p><b>Peso:</b> ${est.peso} kg</p>
+        <p><b>Entrada:</b> ${est.entrada}</p>
+        <p><b>Salida:</b> ${est.salida}</p>
+        <h4>Calificaciones:</h4>
+        <ul>
+          <li>Matemáticas: ${est.notas.matematicas}</li>
+          <li>Historia: ${est.notas.historia}</li>
+          <li>Ciencias: ${est.notas.ciencias}</li>
+          <li>Educación Física: ${est.notas.educacionFisica}</li>
+        </ul>
+        <p><b>Aprobaciones:</b> ${
+          Object.values(est.notas).filter(n => n >= 10).length
+        } materias</p>
+        <p><b>Reprobaciones:</b> ${
+          Object.values(est.notas).filter(n => n < 10).length
+        } materias</p>
+      `;
     }
   </script>
 </body>
