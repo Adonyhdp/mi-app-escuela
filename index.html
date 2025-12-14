@@ -81,7 +81,93 @@
       margin-bottom: 20px;
       text-align: center;
     }
+<script>
 
+  /* ✅ LOGIN REAL (sin datos ficticios) */
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    // ✅ Leer usuarios reales desde Google Sheets
+    const usuarios = await leerUsuarios();
+
+    // Buscar usuario
+    const usuario = usuarios.find(u => u.correo === email && u.contraseña === password);
+
+    if (usuario) {
+
+      // Ocultar login
+      document.getElementById("loginBox").style.display = "none";
+
+      // Mostrar pestañas
+      document.getElementById("tabs").style.display = "block";
+
+      // Cambiar encabezado
+      document.querySelector("header").innerHTML =
+        "📘 Mi-App-Escuela — Bienvenido: " + usuario.rol.toUpperCase();
+
+      // Cargar listas reales
+      loadLists();
+
+    } else {
+      alert("Correo o contraseña incorrectos");
+    }
+  }
+
+
+  /* ✅ CAMBIO DE PESTAÑAS */
+  function openTab(tabName) {
+    const contents = document.querySelectorAll(".tab-content");
+    const buttons = document.querySelectorAll(".tab-buttons button");
+
+    contents.forEach(c => c.classList.remove("active"));
+    buttons.forEach(b => b.classList.remove("active"));
+
+    document.getElementById(tabName).classList.add("active");
+    event.target.classList.add("active");
+  }
+
+
+  /* ✅ FUNCIÓN PRINCIPAL PARA CARGAR LISTAS REALES */
+  async function loadLists() {
+
+    // ✅ Leer escuelas reales
+    const escuelas = await leerEscuelas();
+    const escuelasList = document.getElementById("escuelasList");
+    escuelasList.innerHTML = "";
+    escuelas.forEach(e => {
+      const li = document.createElement("li");
+      li.textContent = e.nombre;
+      li.onclick = () => openTab("salones");
+      escuelasList.appendChild(li);
+    });
+
+    // ✅ Leer liceos reales
+    const liceos = await leerLiceos();
+    const liceosList = document.getElementById("liceosList");
+    liceosList.innerHTML = "";
+    liceos.forEach(l => {
+      const li = document.createElement("li");
+      li.textContent = l.nombre;
+      li.onclick = () => openTab("salones");
+      liceosList.appendChild(li);
+    });
+
+    // ✅ Leer salones reales
+    const salones = await leerHorarios();
+    const salonesList = document.getElementById("salonesList");
+    salonesList.innerHTML = "";
+    salones.forEach(s => {
+      const li = document.createElement("li");
+      li.textContent = s.salon;
+      li.onclick = () => {
+        openTab("estudiantes");
+        cargarEstudiantesReales();
+      };
+      salonesList.appendChild(li);
+    });
+    }
+    
     .tab-buttons button {
       margin: 5px;
       padding: 10px 15px;
@@ -146,6 +232,8 @@
   <div class="tab-buttons">
     <button onclick="openTab('escuelas')" class="active">Escuelas</button>
     <button onclick="openTab('liceos')">Liceos</button>
+    <button onclick="openTab('salones')">Salones</button>
+    <button onclick="openTab('estudiantes')">Estudiantes</button>
   </div>
 
   <!-- Escuelas -->
@@ -179,135 +267,112 @@
   </div>
 
 </div>
+  /* ✅ PARTE 3 — CONEXIÓN A GOOGLE SHEETS (MULTI‑PESTAÑA) */
 
-<script>
+  // ✅ ID de tu hoja (NO CAMBIAR)
+  const sheetID = "1EG53O1aC3NqZIFvYmlewjMQboJ5wOGjP89UUC_Gf1-I";
 
-  /* ✅ USUARIOS DE EJEMPLO (luego se conectarán a Google Sheets) */
-  const users = {
-    "admin@gmail.com": {password: "1234", role: "admin"},
-    "profe@gmail.com": {password: "1234", role: "profesor"},
-    "padre@gmail.com": {password: "1234", role: "representante"}
-  };
+  // ✅ Función genérica para leer cualquier pestaña
+  async function leerPestaña(nombrePestaña) {
+    try {
+      const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${nombrePestaña}&tqx=out:json`;
+      const respuesta = await fetch(url);
+      const texto = await respuesta.text();
 
-  /* ✅ DATOS FICTICIOS (serán reemplazados por Google Sheets en la Parte 3) */
-  const escuelas = ["Escuela Primaria Bolívar", "Escuela Simón Rodríguez"];
-  const liceos = ["Liceo Libertador", "Liceo San Martín"];
-  const salones = Array.from({length: 40}, (_, i) => `Salón ${i+1}`);
+      // Google envía basura antes y después del JSON → limpiamos
+      const json = JSON.parse(texto.substring(47, texto.length - 2));
 
-  const estudiantes = Array.from({length: 40}, (_, i) => ({
-    nombre: `Estudiante ${i+1}`,
-    apellido: `Apellido ${i+1}`,
-    edad: 10 + (i % 10),
-    peso: 30 + i,
-    entrada: "7:00 AM",
-    salida: "1:00 PM",
-    notas: {
-      matematicas: Math.floor(Math.random()*20),
-      historia: Math.floor(Math.random()*20),
-      ciencias: Math.floor(Math.random()*20),
-      educacionFisica: Math.floor(Math.random()*20)
-    }
-  }));
+      return json.table.rows;
 
-
-  /* ✅ FUNCIÓN DE LOGIN */
-  function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if(users[email] && users[email].password === password) {
-
-      // Ocultar login
-      document.getElementById("loginBox").style.display = "none";
-
-      // Mostrar pestañas
-      document.getElementById("tabs").style.display = "block";
-
-      // Cambiar encabezado
-      document.querySelector("header").innerHTML =
-        "📘 Mi-App-Escuela — Bienvenido: " + users[email].role.toUpperCase();
-
-      // Cargar listas
-      loadLists();
-
-    } else {
-      alert("Correo o contraseña incorrectos");
+    } catch (error) {
+      console.error(`❌ Error leyendo pestaña ${nombrePestaña}:`, error);
+      return [];
     }
   }
 
+  /* ✅ LEER USUARIOS (pestaña: Usuarios) */
+  async function leerUsuarios() {
+    const filas = await leerPestaña("Usuarios");
 
-  /* ✅ CAMBIO DE PESTAÑAS */
-  function openTab(tabName) {
-    const contents = document.querySelectorAll(".tab-content");
-    const buttons = document.querySelectorAll(".tab-buttons button");
-
-    contents.forEach(c => c.classList.remove("active"));
-    buttons.forEach(b => b.classList.remove("active"));
-
-    document.getElementById(tabName).classList.add("active");
-    event.target.classList.add("active");
+    return filas.map(fila => ({
+      correo: fila.c[0]?.v || "",
+      contraseña: fila.c[1]?.v || "",
+      rol: fila.c[2]?.v || ""
+    })).filter(u => u.correo !== "");
   }
 
+  /* ✅ LEER ESCUELAS (pestaña: Escuelas) */
+  async function leerEscuelas() {
+    const filas = await leerPestaña("Escuelas");
 
-  /* ✅ CARGAR LISTAS DE ESCUELAS, LICEOS Y SALONES (FICTICIAS POR AHORA) */
-  function loadLists() {
-
-    // Escuelas
-    const escuelasList = document.getElementById("escuelasList");
-    escuelasList.innerHTML = "";
-    escuelas.forEach(e => {
-      const li = document.createElement("li");
-      li.textContent = e;
-      li.onclick = () => openTab("salones");
-      escuelasList.appendChild(li);
-    });
-
-    // Liceos
-    const liceosList = document.getElementById("liceosList");
-    liceosList.innerHTML = "";
-    liceos.forEach(l => {
-      const li = document.createElement("li");
-      li.textContent = l;
-      li.onclick = () => openTab("salones");
-      liceosList.appendChild(li);
-    });
-
-    // Salones
-    const salonesList = document.getElementById("salonesList");
-    salonesList.innerHTML = "";
-    salones.forEach(s => {
-      const li = document.createElement("li");
-      li.textContent = s;
-      li.onclick = () => {
-        openTab("estudiantes");
-        loadEstudiantes(); // ✅ Esto se reemplaza en la Parte 3
-      };
-      salonesList.appendChild(li);
-    });
+    return filas.map(fila => ({
+      nombre: fila.c[0]?.v || ""
+    })).filter(e => e.nombre !== "");
   }
 
+  /* ✅ LEER LICEOS (pestaña: Liceos) */
+  async function leerLiceos() {
+    const filas = await leerPestaña("Liceos");
 
-  /* ✅ CARGAR ESTUDIANTES (FICTICIOS POR AHORA) */
-  function loadEstudiantes() {
-    const estudiantesList = document.getElementById("estudiantesList");
-    estudiantesList.innerHTML = "";
+    return filas.map(fila => ({
+      nombre: fila.c[0]?.v || ""
+    })).filter(l => l.nombre !== "");
+  }
+
+  /* ✅ LEER ESTUDIANTES (pestaña: Estudiantes) */
+  async function leerEstudiantes() {
+    const filas = await leerPestaña("Estudiantes");
+
+    return filas.map(fila => ({
+      nombre: fila.c[0]?.v || "",
+      apellido: fila.c[1]?.v || "",
+      edad: fila.c[2]?.v || "",
+      peso: fila.c[3]?.v || "",
+      entrada: fila.c[4]?.v || "",
+      salida: fila.c[5]?.v || "",
+      matematicas: fila.c[6]?.v || "",
+      historia: fila.c[7]?.v || "",
+      ciencias: fila.c[8]?.v || "",
+      educacionFisica: fila.c[9]?.v || ""
+    })).filter(e => e.nombre !== "");
+  }
+
+  /* ✅ LEER HORARIOS (pestaña: Horarios) */
+  async function leerHorarios() {
+    const filas = await leerPestaña("Horarios");
+
+    return filas.map(fila => ({
+      salon: fila.c[0]?.v || "",
+      entrada: fila.c[1]?.v || "",
+      salida: fila.c[2]?.v || ""
+    })).filter(h => h.salon !== "");
+  }
+    /* ✅ PARTE 4 — CARGAR Y MOSTRAR DATOS REALES EN LA WEB */
+
+
+  /* ✅ CARGAR ESTUDIANTES REALES */
+  async function cargarEstudiantesReales() {
+    const estudiantes = await leerEstudiantes();
+
+    const lista = document.getElementById("estudiantesList");
+    lista.innerHTML = "";
 
     estudiantes.forEach(est => {
       const li = document.createElement("li");
       li.textContent = est.nombre + " " + est.apellido;
-      li.onclick = () => showDatos(est);
-      estudiantesList.appendChild(li);
+
+      li.onclick = () => mostrarDatosEstudiante(est);
+
+      lista.appendChild(li);
     });
   }
 
 
   /* ✅ MOSTRAR DATOS DEL ESTUDIANTE */
-  function showDatos(est) {
+  function mostrarDatosEstudiante(est) {
     openTab("datos");
 
-    const datosContent = document.getElementById("datosContent");
-
-    datosContent.innerHTML = `
+    document.getElementById("datosContent").innerHTML = `
       <p><b>Nombre:</b> ${est.nombre} ${est.apellido}</p>
       <p><b>Edad:</b> ${est.edad}</p>
       <p><b>Peso:</b> ${est.peso} kg</p>
@@ -316,170 +381,58 @@
 
       <h4>Calificaciones:</h4>
       <ul>
-        <li>Matemáticas: ${est.notas.matematicas}</li>
-        <li>Historia: ${est.notas.historia}</li>
-        <li>Ciencias: ${est.notas.ciencias}</li>
-        <li>Educación Física: ${est.notas.educacionFisica}</li>
+        <li>Matemáticas: ${est.matematicas}</li>
+        <li>Historia: ${est.historia}</li>
+        <li>Ciencias: ${est.ciencias}</li>
+        <li>Educación Física: ${est.educacionFisica}</li>
       </ul>
-
-      <p><b>Aprobaciones:</b> ${
-        Object.values(est.notas).filter(n => n >= 10).length
-      } materias</p>
-
-      <p><b>Reprobaciones:</b> ${
-        Object.values(est.notas).filter(n => n < 10).length
-      } materias</p>
     `;
   }
-    /* ✅ PARTE 3 — CONEXIÓN REAL CON GOOGLE SHEETS */
-
-  // ✅ ID de tu hoja (NO LO CAMBIES)
-  const sheetID = "1EG53O1aC3NqZIFvYmlewjMQboJ5wOGjP89UUC_Gf1-I";
-
-  // ✅ URL para leer datos en formato JSON
-  const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
-
-  // ✅ PROBAR CONEXIÓN
-  async function leerGoogleSheet() {
-    try {
-      const respuesta = await fetch(sheetURL);
-      const texto = await respuesta.text();
-
-      // Google envía basura antes y después del JSON → lo limpiamos
-      const json = JSON.parse(texto.substring(47, texto.length - 2));
-
-      console.log("✅ Conectado a Google Sheets");
-      console.log(json);
-
-    } catch (error) {
-      console.error("❌ Error leyendo Google Sheets:", error);
-    }
-  }
-
-  // ✅ LLAMAR A LA FUNCIÓN APENAS ENTRE AL SISTEMA
-  leerGoogleSheet();
+    /* ✅ PARTE 5 — CARGAR ESCUELAS, LICEOS Y SALONES REALES */
 
 
-
-  /* ✅ LEER PESTAÑA ESTUDIANTES Y MOSTRARLA EN LA WEB */
-
-  async function cargarEstudiantesReales() {
-    const respuesta = await fetch(sheetURL);
-    const texto = await respuesta.text();
-    const json = JSON.parse(texto.substring(47, texto.length - 2));
-
-    const filas = json.table.rows;
-
-    // Limpiar lista
-    const lista = document.getElementById("estudiantesList");
-    lista.innerHTML = "";
-
-    filas.forEach(fila => {
-      if (!fila.c[0]) return; // Saltar filas vacías
-
-      const nombre = fila.c[0]?.v || "";
-      const apellido = fila.c[1]?.v || "";
-      const edad = fila.c[2]?.v || "";
-      const peso = fila.c[3]?.v || "";
-      const entrada = fila.c[4]?.v || "";
-      const salida = fila.c[5]?.v || "";
-      const matematicas = fila.c[6]?.v || "";
-      const historia = fila.c[7]?.v || "";
-      const ciencias = fila.c[8]?.v || "";
-      const educacionFisica = fila.c[9]?.v || "";
-
-      // Crear item en la lista
-      const li = document.createElement("li");
-      li.textContent = nombre + " " + apellido;
-
-      // Al hacer clic, mostrar datos reales
-      li.onclick = () => {
-        openTab("datos");
-        document.getElementById("datosContent").innerHTML = `
-          <p><b>Nombre:</b> ${nombre} ${apellido}</p>
-          <p><b>Edad:</b> ${edad}</p>
-          <p><b>Peso:</b> ${peso} kg</p>
-          <p><b>Entrada:</b> ${entrada}</p>
-          <p><b>Salida:</b> ${salida}</p>
-
-          <h4>Calificaciones:</h4>
-          <ul>
-            <li>Matemáticas: ${matematicas}</li>
-            <li>Historia: ${historia}</li>
-            <li>Ciencias: ${ciencias}</li>
-            <li>Educación Física: ${educacionFisica}</li>
-          </ul>
-        `;
-      };
-
-      lista.appendChild(li);
-    });
-      }
-    /* ✅ PARTE 4 — LEER ESCUELAS, LICEOS Y HORARIOS REALES DESDE GOOGLE SHEETS */
-
-
-  /* ✅ LEER PESTAÑA ESCUELAS (columna A) */
+  /* ✅ CARGAR ESCUELAS REALES */
   async function cargarEscuelasReales() {
-    const respuesta = await fetch(sheetURL);
-    const texto = await respuesta.text();
-    const json = JSON.parse(texto.substring(47, texto.length - 2));
+    const escuelas = await leerEscuelas();
 
-    const filas = json.table.rows;
     const lista = document.getElementById("escuelasList");
     lista.innerHTML = "";
 
-    filas.forEach(fila => {
-      const escuela = fila.c[10]?.v; // Ajusta según tu hoja
-      if (!escuela) return;
-
+    escuelas.forEach(e => {
       const li = document.createElement("li");
-      li.textContent = escuela;
+      li.textContent = e.nombre;
       li.onclick = () => openTab("salones");
       lista.appendChild(li);
     });
   }
 
 
-
-  /* ✅ LEER PESTAÑA LICEOS (columna B o C según tu hoja) */
+  /* ✅ CARGAR LICEOS REALES */
   async function cargarLiceosReales() {
-    const respuesta = await fetch(sheetURL);
-    const texto = await respuesta.text();
-    const json = JSON.parse(texto.substring(47, texto.length - 2));
+    const liceos = await leerLiceos();
 
-    const filas = json.table.rows;
     const lista = document.getElementById("liceosList");
     lista.innerHTML = "";
 
-    filas.forEach(fila => {
-      const liceo = fila.c[11]?.v; // Ajusta según tu hoja
-      if (!liceo) return;
-
+    liceos.forEach(l => {
       const li = document.createElement("li");
-      li.textContent = liceo;
+      li.textContent = l.nombre;
       li.onclick = () => openTab("salones");
       lista.appendChild(li);
     });
   }
 
 
+  /* ✅ CARGAR SALONES REALES (desde pestaña Horarios) */
+  async function cargarSalonesReales() {
+    const horarios = await leerHorarios();
 
-  /* ✅ LEER PESTAÑA HORARIOS (salón, entrada, salida) */
-  async function cargarHorariosReales() {
-    const respuesta = await fetch(sheetURL);
-    const texto = await respuesta.text();
-    const json = JSON.parse(texto.substring(47, texto.length - 2));
-
-    const filas = json.table.rows;
     const lista = document.getElementById("salonesList");
     lista.innerHTML = "";
 
-    filas.forEach(fila => {
-      const salon = fila.c[10]?.v; // Ajusta según tu hoja
-      if (!salon) return;
-
+    horarios.forEach(h => {
       const li = document.createElement("li");
-      li.textContent = salon;
+      li.textContent = h.salon;
 
       li.onclick = () => {
         openTab("estudiantes");
@@ -491,12 +444,11 @@
   }
 
 
-
-  /* ✅ REEMPLAZAR LISTAS FICTICIAS POR LISTAS REALES */
+  /* ✅ REEMPLAZAR loadLists() PARA USAR DATOS REALES */
   async function loadLists() {
     await cargarEscuelasReales();
     await cargarLiceosReales();
-    await cargarHorariosReales();
+    await cargarSalonesReales();
   }
 
 </script>
