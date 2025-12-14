@@ -1,122 +1,142 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Sistema Escolar</title>
-<style>
-body{font-family:Arial;background:#e5e7eb;margin:0;padding:0}
-.container{max-width:900px;margin:auto;padding:20px}
-.box{background:white;padding:20px;border-radius:12px;margin-top:20px}
-button{padding:10px 15px;border:none;border-radius:8px;background:#2563eb;color:white;font-weight:bold;cursor:pointer}
-button:hover{background:#1e40af}
-input,textarea,select{width:100%;padding:8px;margin:5px 0;border-radius:6px;border:1px solid #ccc}
-h2{text-align:center;margin-top:10px}
-.hidden{display:none}
-.logout{background:#dc2626}
-.logo{text-align:center;margin-bottom:10px}
-</style>
+  <meta charset="UTF-8">
+  <title>Login Escuela</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+    }
+    .login-box h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #4facfe;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00c6fb;
+    }
+    .tabs {
+      display: none;
+      margin-top: 20px;
+    }
+    .tab-buttons button {
+      margin: 5px;
+      padding: 8px 15px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      background: #eee;
+    }
+    .tab-buttons button.active {
+      background: #4facfe;
+      color: #fff;
+    }
+    .tab-content {
+      display: none;
+      margin-top: 15px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
+  <div class="login-box" id="loginBox">
+    <h2>Ingreso Escuela</h2>
+    <input type="text" id="email" placeholder="Correo">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button onclick="login()">Entrar</button>
+  </div>
 
+  <div class="tabs" id="tabs">
+    <div class="tab-buttons">
+      <button onclick="openTab('inicio')" class="active">Inicio</button>
+      <button onclick="openTab('horarios')">Horarios</button>
+      <button onclick="openTab('notas')">Notas</button>
+      <button onclick="openTab('reuniones')">Reuniones</button>
+    </div>
+    <div id="inicio" class="tab-content active">
+      <h3>Bienvenido</h3>
+      <p>Panel principal según tu rol.</p>
+    </div>
+    <div id="horarios" class="tab-content">
+      <h3>Horarios</h3>
+      <p>Aquí se mostrarán los horarios de clases.</p>
+    </div>
+    <div id="notas" class="tab-content">
+      <h3>Notas</h3>
+      <p>Aquí se mostrarán las calificaciones.</p>
+    </div>
+    <div id="reuniones" class="tab-content">
+      <h3>Reuniones</h3>
+      <p>Aquí se mostrarán las reuniones programadas.</p>
+    </div>
+  </div>
 
-<div class="container">
+  <script>
+    // Usuarios de ejemplo con roles
+    const users = {
+      "admin@gmail.com": {password: "1234", role: "admin"},
+      "profe@gmail.com": {password: "1234", role: "profesor"},
+      "padre@gmail.com": {password: "1234", role: "representante"}
+    };
 
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      if(users[email] && users[email].password === password) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("tabs").style.display = "block";
+        alert("Bienvenido " + users[email].role);
+        // Aquí luego podemos ocultar/mostrar pestañas según el rol
+      } else {
+        alert("Correo o contraseña incorrectos");
+      }
+    }
 
-<!-- LOGO ESCOLAR -->
-<div class="box logo">
-<svg width="100" height="100" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 3L2 9L12 15L22 9L12 3Z" fill="#2563eb"/>
-<path d="M5 11V16C5 17.2 8.5 19 12 19C15.5 19 19 17.2 19 16V11" stroke="#1e40af" stroke-width="2" fill="none"/>
-<path d="M7 6H11V18H7C5.9 18 5 17.1 5 16V8C5 6.9 5.9 6 7 6Z" fill="#06b6d4"/>
-<path d="M13 6H17C18.1 6 19 6.9 19 8V16C19 17.1 18.1 18 17 18H13V6Z" fill="#0ea5e9"/>
-</svg>
-<h2>Sistema Escolar</h2>
-</div>
+    function openTab(tabName) {
+      const contents = document.querySelectorAll(".tab-content");
+      const buttons = document.querySelectorAll(".tab-buttons button");
+      contents.forEach(c => c.classList.remove("active"));
+      buttons.forEach(b => b.classList.remove("active"));
+      document.getElementById(tabName).classList.add("active");
+      event.target.classList.add("active");
+    }
+  </script>
+</body>
+</html>
 
-
-<!-- LOGIN -->
-<div id="login" class="box">
-<h2>Ingreso</h2>
-<input id="user" placeholder="Usuario">
-<input id="pass" type="password" placeholder="Contraseña">
-<select id="role">
-<option value="admin">Administrador (ADM)</option>
-<option value="profesor">Profesor/a</option>
-<option value="representante">Representante</option>
-</select>
-<br><br>
-<button onclick="login()">Ingresar</button>
-<p id="msg" style="color:red"></p>
-</div>
-
-
-<!-- PANEL ADMIN -->
-<!-- PANEL ADMIN -->
-<div id="panelAdmin" class="box hidden">
-<h2>Panel Administrador</h2>
-<ul>
-<li><b>Rol:</b> Administrador</li>
-<li><b>Nombre:</b> <span id="adminNombre"></span></li>
-<li><b>Apellido:</b> <span id="adminApellido"></span></li>
-<li><b>Edad:</b> <span id="adminEdad"></span></li>
-</ul>
-<textarea id="adminText" placeholder="Información general del colegio"></textarea>
-<button onclick="guardarAdmin()">Guardar</button>
-<button class="logout" onclick="logout()">Cerrar sesión</button>
-</div>
-
-
-<!-- PANEL PROFESOR -->
-<!-- PANEL PROFESOR -->
-<div id="panelProfesor" class="box hidden">
-<h2>Panel Profesor/a</h2>
-<ul>
-<li><b>Rol:</b> Profesor/a</li>
-<li><b>Nombre:</b> <span id="profNombre"></span></li>
-<li><b>Apellido:</b> <span id="profApellido"></span></li>
-<li><b>Edad:</b> <span id="profEdad"></span></li>
-</ul>
-<textarea id="profText" placeholder="Notas, horarios, faltas"></textarea>
-<button onclick="guardarProfesor()">Guardar</button>
-<button class="logout" onclick="logout()">Cerrar sesión</button>
-</div>
-
-
-<!-- PANEL REPRESENTANTE -->
-<!-- PANEL REPRESENTANTE -->
-<div id="panelRepresentante" class="box hidden">
-<h2>Panel Representante</h2>
-<ul>
-<li><b>Rol:</b> Representante</li>
-<li><b>Nombre:</b> <span id="repNombre"></span></li>
-<li><b>Apellido:</b> <span id="repApellido"></span></li>
-<li><b>Edad:</b> <span id="repEdad"></span></li>
-</ul>
-<p><b>Información general:</b></p>
-<p id="verAdmin"></p>
-<p><b>Información académica:</b></p>
-<p id="verProfesor"></p>
-<button class="logout" onclick="logout()">Cerrar sesión</button>
-</div>
-
-
-</div>
-
-
-<script>
-function login(){
-const u=user.value,p=pass.value,r=role.value;
-if(!u||!p){msg.innerText="Complete los campos";return}
-localStorage.setItem('rol',r);
-mostrarPanel(r);
-}
-
-
-function mostrarPanel(r){
-loginDiv('login',false);
-const nombre=user.value || 'Nombre';
-const apellido='Apellido';
-const edad='--';
-if(r==='admin'){
-adminNombre.innerText=nombre;
-  </html>
