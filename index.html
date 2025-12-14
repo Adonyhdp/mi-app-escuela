@@ -179,6 +179,7 @@
   </div>
 
 </div>
+
 <script>
 
   /* ✅ USUARIOS DE EJEMPLO (luego se conectarán a Google Sheets) */
@@ -248,7 +249,7 @@
   }
 
 
-  /* ✅ CARGAR LISTAS DE ESCUELAS, LICEOS Y SALONES */
+  /* ✅ CARGAR LISTAS DE ESCUELAS, LICEOS Y SALONES (FICTICIAS POR AHORA) */
   function loadLists() {
 
     // Escuelas
@@ -279,7 +280,7 @@
       li.textContent = s;
       li.onclick = () => {
         openTab("estudiantes");
-        loadEstudiantes(); // Esto se reemplaza en la Parte 3
+        loadEstudiantes(); // ✅ Esto se reemplaza en la Parte 3
       };
       salonesList.appendChild(li);
     });
@@ -330,7 +331,6 @@
       } materias</p>
     `;
   }
-
     /* ✅ PARTE 3 — CONEXIÓN REAL CON GOOGLE SHEETS */
 
   // ✅ ID de tu hoja (NO LO CAMBIES)
@@ -429,7 +429,7 @@
     lista.innerHTML = "";
 
     filas.forEach(fila => {
-      const escuela = fila.c[10]?.v; // Columna 11 (A=0, B=1...)
+      const escuela = fila.c[10]?.v; // Ajusta según tu hoja
       if (!escuela) return;
 
       const li = document.createElement("li");
@@ -452,7 +452,7 @@
     lista.innerHTML = "";
 
     filas.forEach(fila => {
-      const liceo = fila.c[11]?.v; // Columna 12
+      const liceo = fila.c[11]?.v; // Ajusta según tu hoja
       if (!liceo) return;
 
       const li = document.createElement("li");
@@ -498,5 +498,10 @@
     await cargarLiceosReales();
     await cargarHorariosReales();
   }
+
+</script>
+
+</body>
+</html>
 
   
