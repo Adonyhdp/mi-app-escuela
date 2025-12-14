@@ -2,114 +2,100 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Login Escolar</title>
+<title>Sistema Escolar</title>
 <style>
-body {
-font-family: Arial, sans-serif;
-background: linear-gradient(135deg, #4f46e5, #06b6d4);
-height: 100vh;
-display: flex;
-justify-content: center;
-align-items: center;
-margin: 0;
-}
-
-
-.login-box {
-background: white;
-padding: 25px;
-border-radius: 12px;
-width: 300px;
-box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
-
-
-h2 {
-text-align: center;
-margin-bottom: 20px;
-}
-
-
-input, select, button {
-width: 100%;
-margin-bottom: 12px;
-padding: 10px;
-border-radius: 6px;
-border: 1px solid #ccc;
-font-size: 14px;
-}
-
-
-button {
-background: #4f46e5;
-color: white;
-border: none;
-cursor: pointer;
-}
-
-
-button:hover {
-background: #4338ca;
-}
-
-
-.error {
-color: red;
-text-align: center;
-font-size: 14px;
-}
+body{font-family:Arial;background:#e5e7eb;margin:0;padding:0}
+.container{max-width:900px;margin:auto;padding:20px}
+.box{background:white;padding:20px;border-radius:12px;margin-top:20px}
+button{padding:10px 15px;border:none;border-radius:8px;background:#2563eb;color:white;font-weight:bold;cursor:pointer}
+button:hover{background:#1e40af}
+input,textarea{width:100%;padding:8px;margin:5px 0;border-radius:6px;border:1px solid #ccc}
+h2{margin-top:0}
+.hidden{display:none}
+.logout{background:#dc2626}
 </style>
 </head>
 <body>
 
 
-<div class="login-box">
-<h2>Ingreso Escolar</h2>
+<div class="container">
 
 
-<input type="text" id="usuario" placeholder="Usuario">
-<input type="password" id="clave" placeholder="Contraseña">
-
-
-<select id="rol">
-<option value="admin">Administrador</option>
-<option value="moderador">Moderador</option>
-<option value="padre">Padre</option>
+<!-- LOGIN -->
+<div id="login" class="box">
+<h2>Ingreso al Sistema Escolar</h2>
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<select id="role">
+<option value="admin">Administrador (ADM)</option>
+<option value="profesor">Profesor/a</option>
+<option value="representante">Representante</option>
 </select>
-
-
+<br><br>
 <button onclick="login()">Ingresar</button>
+<p id="msg" style="color:red"></p>
+</div>
 
 
-<div id="mensaje" class="error"></div>
+<!-- PANEL ADMIN -->
+<div id="panelAdmin" class="box hidden">
+<h2>Panel Administrador</h2>
+<textarea id="adminText" placeholder="Información general del colegio"></textarea>
+<button onclick="guardarAdmin()">Guardar</button>
+<button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
+
+
+<!-- PANEL PROFESOR -->
+<div id="panelProfesor" class="box hidden">
+<h2>Panel Profesor/a</h2>
+<textarea id="profText" placeholder="Notas, horarios, faltas"></textarea>
+<button onclick="guardarProfesor()">Guardar</button>
+<button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
+
+
+<!-- PANEL REPRESENTANTE -->
+<div id="panelRepresentante" class="box hidden">
+<h2>Panel Representante</h2>
+<p><b>Información general:</b></p>
+<p id="verAdmin"></p>
+<p><b>Información académica:</b></p>
+<p id="verProfesor"></p>
+<button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
+
+
 </div>
 
 
 <script>
-function login() {
-const usuario = document.getElementById('usuario').value;
-const clave = document.getElementById('clave').value;
-const rol = document.getElementById('rol').value;
-
-
-if (usuario === '' || clave === '') {
-document.getElementById('mensaje').innerText = 'Completa todos los campos';
-return;
+function login(){
+const u=user.value,p=pass.value,r=role.value;
+if(!u||!p){msg.innerText="Complete los campos";return}
+localStorage.setItem('rol',r);
+mostrarPanel(r);
 }
 
 
-localStorage.setItem('usuario', usuario);
-localStorage.setItem('rol', rol);
-
-
-if (rol === 'admin') {
-alert('Bienvenido Administrador');
-} else if (rol === 'moderador') {
-alert('Bienvenido Moderador');
-} else {
-alert('Bienvenido Padre');
+function mostrarPanel(r){
+loginDiv('login',false);
+if(r==='admin')loginDiv('panelAdmin',true);
+if(r==='profesor')loginDiv('panelProfesor',true);
+if(r==='representante'){
+verAdmin.innerText=localStorage.getItem('admin')||'';
+verProfesor.innerText=localStorage.getItem('profesor')||'';
+loginDiv('panelRepresentante',true);
 }
 }
+
+
+function loginDiv(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
+
+
+function guardarAdmin(){localStorage.setItem('admin',adminText.value);alert('Guardado')}
+function guardarProfesor(){localStorage.setItem('profesor',profText.value);alert('Guardado')}
+function logout(){localStorage.clear();location.reload()}
 </script>
 
 
