@@ -142,8 +142,7 @@
       <div id="datosContent"></div>
     </div>
   </div>
-
-  <script>
+    <script>
     // Usuarios de ejemplo
     const users = {
       "admin@gmail.com": {password: "1234", role: "admin"},
@@ -176,7 +175,7 @@
       if(users[email] && users[email].password === password) {
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("tabs").style.display = "block";
-        alert("Bienvenido " + users[email].role);
+        document.querySelector("header").innerHTML = "📘 Mi-App-Escuela - Bienvenido " + users[email].role;
         loadLists();
       } else {
         alert("Correo o contraseña incorrectos");
@@ -243,18 +242,6 @@
         <p><b>Salida:</b> ${est.salida}</p>
         <h4>Calificaciones:</h4>
         <ul>
-          <li>Matemáticas: ${est.notas
-                                 function showDatos(est) {
-      openTab("datos");
-      const datosContent = document.getElementById("datosContent");
-      datosContent.innerHTML = `
-        <p><b>Nombre:</b> ${est.nombre} ${est.apellido}</p>
-        <p><b>Edad:</b> ${est.edad}</p>
-        <p><b>Peso:</b> ${est.peso} kg</p>
-        <p><b>Entrada:</b> ${est.entrada}</p>
-        <p><b>Salida:</b> ${est.salida}</p>
-        <h4>Calificaciones:</h4>
-        <ul>
           <li>Matemáticas: ${est.notas.matematicas}</li>
           <li>Historia: ${est.notas.historia}</li>
           <li>Ciencias: ${est.notas.ciencias}</li>
@@ -271,4 +258,3 @@
   </script>
 </body>
 </html>
-
