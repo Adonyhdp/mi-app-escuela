@@ -51,8 +51,15 @@ h2{text-align:center;margin-top:10px}
 
 
 <!-- PANEL ADMIN -->
+<!-- PANEL ADMIN -->
 <div id="panelAdmin" class="box hidden">
 <h2>Panel Administrador</h2>
+<ul>
+<li><b>Rol:</b> Administrador</li>
+<li><b>Nombre:</b> <span id="adminNombre"></span></li>
+<li><b>Apellido:</b> <span id="adminApellido"></span></li>
+<li><b>Edad:</b> <span id="adminEdad"></span></li>
+</ul>
 <textarea id="adminText" placeholder="Información general del colegio"></textarea>
 <button onclick="guardarAdmin()">Guardar</button>
 <button class="logout" onclick="logout()">Cerrar sesión</button>
@@ -60,8 +67,15 @@ h2{text-align:center;margin-top:10px}
 
 
 <!-- PANEL PROFESOR -->
+<!-- PANEL PROFESOR -->
 <div id="panelProfesor" class="box hidden">
 <h2>Panel Profesor/a</h2>
+<ul>
+<li><b>Rol:</b> Profesor/a</li>
+<li><b>Nombre:</b> <span id="profNombre"></span></li>
+<li><b>Apellido:</b> <span id="profApellido"></span></li>
+<li><b>Edad:</b> <span id="profEdad"></span></li>
+</ul>
 <textarea id="profText" placeholder="Notas, horarios, faltas"></textarea>
 <button onclick="guardarProfesor()">Guardar</button>
 <button class="logout" onclick="logout()">Cerrar sesión</button>
@@ -69,8 +83,15 @@ h2{text-align:center;margin-top:10px}
 
 
 <!-- PANEL REPRESENTANTE -->
+<!-- PANEL REPRESENTANTE -->
 <div id="panelRepresentante" class="box hidden">
 <h2>Panel Representante</h2>
+<ul>
+<li><b>Rol:</b> Representante</li>
+<li><b>Nombre:</b> <span id="repNombre"></span></li>
+<li><b>Apellido:</b> <span id="repApellido"></span></li>
+<li><b>Edad:</b> <span id="repEdad"></span></li>
+</ul>
 <p><b>Información general:</b></p>
 <p id="verAdmin"></p>
 <p><b>Información académica:</b></p>
@@ -92,23 +113,10 @@ mostrarPanel(r);
 
 
 function mostrarPanel(r){
-mostrar('login',false);
-if(r==='admin')mostrar('panelAdmin',true);
-if(r==='profesor')mostrar('panelProfesor',true);
-if(r==='representante'){
-verAdmin.innerText=localStorage.getItem('admin')||'';
-verProfesor.innerText=localStorage.getItem('profesor')||'';
-mostrar('panelRepresentante',true);
-}
-}
-
-
-function mostrar(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
-function guardarAdmin(){localStorage.setItem('admin',adminText.value);alert('Guardado')}
-function guardarProfesor(){localStorage.setItem('profesor',profText.value);alert('Guardado')}
-function logout(){localStorage.clear();location.reload()}
-</script>
-
-
-</body>
-</html>
+loginDiv('login',false);
+const nombre=user.value || 'Nombre';
+const apellido='Apellido';
+const edad='--';
+if(r==='admin'){
+adminNombre.innerText=nombre;
+  </html>
